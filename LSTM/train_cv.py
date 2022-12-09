@@ -19,6 +19,7 @@ from tqdm import tqdm
 
 use_cuda = torch.cuda.is_available()
 print('Use CUDA: ' + str(use_cuda))
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 if use_cuda:
     dtype = torch.cuda.FloatTensor
@@ -186,9 +187,9 @@ for listener in listener_lst:
 
                 # set model input here
                 model_input = batch['x'].transpose(1, 2)
-                model_output_logits = model(model_input)
+                model_output_logits = model(model_input.to(device))
 
-                y = batch['y']
+                y = batch['y'].to(device)
 
                 loss = loss_func(model_output_logits, y)
                 loss_list.append(loss.cpu().data.numpy())
@@ -213,7 +214,7 @@ for listener in listener_lst:
 
                 # set model input here
                 model_input = batch['x'].transpose(1, 2)
-                y_test = batch['y']
+                y_test = batch['y'].to(device)
 
                 # set the model.change_batch_size directly
                 batch_length = 8
@@ -225,7 +226,7 @@ for listener in listener_lst:
                     else:
                         model.change_batch_size_reset_states(batch_length)
 
-                out_test = model(model_input)
+                out_test = model(model_input.to(device))
 
                 preds = torch.softmax(out_test, dim=1)
                 predictions = np.argmax(preds.data.cpu().numpy(), axis=1)
