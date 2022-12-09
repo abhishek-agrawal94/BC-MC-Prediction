@@ -268,7 +268,8 @@ for listener in listener_lst:
 
         print("Best validation accuracy: {}".format(np.around(best_acc, 4)))
         acc_list.append(best_acc)
+        fold += 1
 
     avg_acc = sum(acc_list) / len(acc_list)
     print("For listener: {}, min_acc: {}, max_acc: {}, avg. acc: {}".format(listener, np.around(min(acc_list), 3), np.around(max(acc_list), 3), np.around(avg_acc, 3)))
-    fold += 1
+
