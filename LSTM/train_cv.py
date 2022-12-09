@@ -41,7 +41,7 @@ num_layers = 1
 grad_clip_bool = False # turn gradient clipping on or off
 grad_clip = 1.0 # try values between 0 and 1
 init_std = 0.5
-num_epochs = 2
+num_epochs = 70
 slow_test = True
 patience = 10
 
