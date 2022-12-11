@@ -10,7 +10,7 @@ import torch.optim as optim
 import numpy as np
 import matplotlib as mpl
 import pandas as pd
-from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, f1_score
 import time as t
 import os
 from collections import Counter
@@ -153,6 +153,8 @@ for listener in listener_lst:
     file_list = list(pd.read_csv(file_list_path, header=None, dtype=str)[0])
     fold = 0
     acc_list = []
+    f1_micro_list = []
+    f1_weighted_list = []
     for file in file_list:
         # leave one speaker out cross validation
         test_file_list = [file]
@@ -172,6 +174,8 @@ for listener in listener_lst:
 
         optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=L2)
         best_acc = 0.0
+        best_f1_micro = 0.0
+        best_f1_weighted = 0.0
 
         # %% Training
         for epoch in range(0, num_epochs):
@@ -250,26 +254,40 @@ for listener in listener_lst:
             true_vals = [item for sublist in true_val for item in sublist]
             predicted_vals = [item for sublist in predicted_val for item in sublist]
             acc_score = accuracy_score(true_vals, predicted_vals)
+            f1_micro = f1_score(true_vals, predicted_vals, average='micro')
+            f1_weighted = f1_score(true_vals, predicted_vals, average='weighted')
             if acc_score > best_acc:
                 best_acc = acc_score
+            if f1_micro > best_f1_micro:
+                best_f1_micro = f1_micro
+            if f1_weighted > best_f1_weighted:
+                best_f1_weighted = f1_weighted
 
             t_total_end = t.time()
             if (epoch + 1) % 10 == 0:
                 print(
-                    'Epoch: {0} \t Val_loss: {1}\t Train_Loss: {2} \t Val_acc: {3} \t Train_time: {4} \t Val_time: {5} \t Total_time: {6}'.format(
+                    'Epoch: {0} \t Val_loss: {1}\t Train_Loss: {2} \t Val_acc: {3} \t F1_micro: {4} \t F1-weighted: {5}  \t Train_time: {6} \t Val_time: {7} \t Total_time: {8}'.format(
                         epoch + 1,
                         np.round(loss_weighted_mean, 4),
                         np.round(np.float64(np.array(loss_list).mean()), 4),
                         np.around(acc_score, 4),
+                        np.around(f1_micro, 4),
+                        np.around(f1_weighted, 4),
                         np.round(t_epoch_end - t_epoch_strt, 2),
                         np.round(t_total_end - t_epoch_end, 2),
                         np.round(t_total_end - t_epoch_strt, 2)))
 
 
-        print("Best validation accuracy: {}".format(np.around(best_acc, 4)))
+        print("Best validation accuracy: {}, F1-micro: {}, F1-weighted: {}".format(np.around(best_acc, 4), np.around(best_f1_micro, 4), np.around(best_f1_weighted, 4)))
         acc_list.append(best_acc)
+        f1_micro_list.append(best_f1_micro)
+        f1_weighted_list.append(best_f1_weighted)
         fold += 1
 
     avg_acc = sum(acc_list) / len(acc_list)
+    avg_f1_micro = sum(f1_micro_list) / len(f1_micro_list)
+    avg_f1_weighted = sum(f1_weighted_list) / len(f1_weighted_list)
     print("For listener: {}, min_acc: {}, max_acc: {}, avg. acc: {}".format(listener, np.around(min(acc_list), 3), np.around(max(acc_list), 3), np.around(avg_acc, 3)))
+    print("For listener: {}, min_F1_micro: {}, max_F1_micro: {}, avg. F1_micro: {}".format(listener, np.around(min(f1_micro_list), 3), np.around(max(f1_micro_list), 3), np.around(avg_f1_micro, 3)))
+    print("For listener: {}, min_F1_weighted: {}, max_F1_weighted: {}, avg. F1_weighted: {}".format(listener, np.around(min(f1_weighted_list), 3), np.around(max(f1_weighted_list), 3), np.around(f1_weighted_list, 3)))
 
