@@ -31,8 +31,8 @@ else:
 
 
 # general model settings
-train_batch_size = 128
-test_batch_size = 8 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
+train_batch_size = 32
+test_batch_size = 5 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
 sequence_length = 60  # 3s context window
 
@@ -81,7 +81,7 @@ listener_lst = ['Child','Parent','Adult1','Adult2']
 
 
 # early feature fusion
-def load_data_sliding(file_list, annotations_dir):
+def load_data_sliding(file_list, annotations_dir, num_feats=-1):
     # read files of different modalities
     prediction_length = 1  # !!!
     dataset = list()
@@ -157,7 +157,11 @@ def load_data_sliding(file_list, annotations_dir):
             window += 1
 
     # get equal number of samples for each label
-    min_samples = min([len(x) for x in dataset_dict.values()])
+    if num_feats != -1:
+        min_samples = num_feats
+    else:
+        min_samples = min([len(x) for x in dataset_dict.values()])
+
     for key, values in dataset_dict.items():
         samples = random.sample(values, min_samples)
         dataset.append(samples)
@@ -183,8 +187,8 @@ for listener in listener_lst:
         train_file_list.remove(file)
         print('Start running fold: ' + str(fold))
 
-        train_dataset, train_labels = load_data_sliding(train_file_list, annotations_dir)
-        test_dataset, test_labels = load_data_sliding(test_file_list, annotations_dir)
+        train_dataset, train_labels = load_data_sliding(train_file_list, annotations_dir,num_feats=1406)
+        test_dataset, test_labels = load_data_sliding(test_file_list, annotations_dir, num_feats=60)
         train_lens.append(len(train_labels))
         test_lens.append(len(test_labels))
         train_dataloader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=shuffle, drop_last=True)
@@ -243,7 +247,7 @@ for listener in listener_lst:
                 y_test = batch['y'].to(device)
 
                 # set the model.change_batch_size directly
-                batch_length = 8
+                batch_length = 5
                 if batch_indx == 0:
                     model.change_batch_size_reset_states(batch_length)
                 else:
