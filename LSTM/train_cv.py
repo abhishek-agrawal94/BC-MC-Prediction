@@ -34,7 +34,7 @@ else:
 train_batch_size = 32
 test_batch_size = 5 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
-sequence_length = 60  # 3s context window
+sequence_length = 40  # 2s context window
 
 shuffle = False
 num_layers = 1
