@@ -13,8 +13,9 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, f1_score
 import time as t
 import os
-from collections import Counter
+from collections import Counter, defaultdict
 from tqdm import tqdm
+import random
 
 
 use_cuda = torch.cuda.is_available()
@@ -84,7 +85,7 @@ def load_data_sliding(file_list, annotations_dir):
     # read files of different modalities
     prediction_length = 1  # !!!
     dataset = list()
-    labels = []
+    dataset_dict = defaultdict(list)
 
     for filename in file_list:
         # load features of different modalities
@@ -130,6 +131,8 @@ def load_data_sliding(file_list, annotations_dir):
         x_np_dict = np.asarray(x_np_dict_list).reshape([len(x_np_dict_list), len(x_np_dict_list[0])])
 
         window = 0
+        prev_frame = 100
+        count_frame = 1
 
         while (window + sequence_length) < len(predict_np):
             datapoint = {}
@@ -140,9 +143,27 @@ def load_data_sliding(file_list, annotations_dir):
             datapoint['x'] = data_temp_x
             datapoint['y'] = predict_np[window + sequence_length]
 
-            dataset.append(datapoint)
-            labels.append(datapoint['y'])
+            # Get only first 4 frames for each label
+            if datapoint['y'] == prev_frame and count_frame > 4:
+                window += 1
+                continue
+            elif datapoint['y'] != prev_frame:
+                prev_frame = datapoint['y']
+                count_frame = 1
+
+            #dataset.append(datapoint)
+            dataset_dict[datapoint['y']].append(datapoint)
+            count_frame += 1
             window += 1
+
+    # get equal number of samples for each label
+    min_samples = min([len(x) for x in dataset_dict.values()])
+    for key, values in dataset_dict.items():
+        samples = random.sample(values, min_samples)
+        dataset.append(samples)
+
+    dataset = [item for x in dataset for item in x]
+    labels = [item['y'] for item in dataset]
 
     return dataset, labels
 
@@ -153,8 +174,8 @@ for listener in listener_lst:
     file_list = list(pd.read_csv(file_list_path, header=None, dtype=str)[0])
     fold = 0
     acc_list = []
-    f1_micro_list = []
     f1_weighted_list = []
+    train_lens, test_lens = [], []
     for file in file_list:
         # leave one speaker out cross validation
         test_file_list = [file]
@@ -164,6 +185,8 @@ for listener in listener_lst:
 
         train_dataset, train_labels = load_data_sliding(train_file_list, annotations_dir)
         test_dataset, test_labels = load_data_sliding(test_file_list, annotations_dir)
+        train_lens.append(len(train_labels))
+        test_lens.append(len(test_labels))
         train_dataloader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=shuffle, drop_last=True)
         test_dataloader = DataLoader(test_dataset, batch_size=test_batch_size, shuffle=shuffle, drop_last=True)
         num_features = train_dataset[0]['x'].shape[0]
@@ -174,7 +197,6 @@ for listener in listener_lst:
 
         optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=L2)
         best_acc = 0.0
-        best_f1_micro = 0.0
         best_f1_weighted = 0.0
 
         # %% Training
@@ -254,40 +276,35 @@ for listener in listener_lst:
             true_vals = [item for sublist in true_val for item in sublist]
             predicted_vals = [item for sublist in predicted_val for item in sublist]
             acc_score = accuracy_score(true_vals, predicted_vals)
-            f1_micro = f1_score(true_vals, predicted_vals, average='micro')
             f1_weighted = f1_score(true_vals, predicted_vals, average='weighted')
             if acc_score > best_acc:
                 best_acc = acc_score
-            if f1_micro > best_f1_micro:
-                best_f1_micro = f1_micro
             if f1_weighted > best_f1_weighted:
                 best_f1_weighted = f1_weighted
 
             t_total_end = t.time()
             if (epoch + 1) % 10 == 0:
                 print(
-                    'Epoch: {0} \t Val_loss: {1}\t Train_Loss: {2} \t Val_acc: {3} \t F1_micro: {4} \t F1-weighted: {5}  \t Train_time: {6} \t Val_time: {7} \t Total_time: {8}'.format(
+                    'Epoch: {0} \t Val_loss: {1}\t Train_Loss: {2} \t Val_acc: {3} \t F1-weighted: {4}  \t Train_time: {5} \t Val_time: {6} \t Total_time: {7}'.format(
                         epoch + 1,
                         np.round(loss_weighted_mean, 4),
                         np.round(np.float64(np.array(loss_list).mean()), 4),
                         np.around(acc_score, 4),
-                        np.around(f1_micro, 4),
                         np.around(f1_weighted, 4),
                         np.round(t_epoch_end - t_epoch_strt, 2),
                         np.round(t_total_end - t_epoch_end, 2),
                         np.round(t_total_end - t_epoch_strt, 2)))
 
 
-        print("Best validation accuracy: {}, F1-micro: {}, F1-weighted: {}".format(np.around(best_acc, 4), np.around(best_f1_micro, 4), np.around(best_f1_weighted, 4)))
+        print("Best validation accuracy: {}, F1-weighted: {}".format(np.around(best_acc, 4), np.around(best_f1_weighted, 4)))
         acc_list.append(best_acc)
-        f1_micro_list.append(best_f1_micro)
         f1_weighted_list.append(best_f1_weighted)
         fold += 1
 
     avg_acc = sum(acc_list) / len(acc_list)
-    avg_f1_micro = sum(f1_micro_list) / len(f1_micro_list)
     avg_f1_weighted = sum(f1_weighted_list) / len(f1_weighted_list)
+    avg_train_len = sum(train_lens) / (3 * len(train_lens))
+    avg_test_len = sum(test_lens) / (3 * len(test_lens))
     print("For listener: {}, min_acc: {}, max_acc: {}, avg. acc: {}".format(listener, np.around(min(acc_list), 3), np.around(max(acc_list), 3), np.around(avg_acc, 3)))
-    print("For listener: {}, min_F1_micro: {}, max_F1_micro: {}, avg. F1_micro: {}".format(listener, np.around(min(f1_micro_list), 3), np.around(max(f1_micro_list), 3), np.around(avg_f1_micro, 3)))
-    print("For listener: {}, min_F1_weighted: {}, max_F1_weighted: {}, avg. F1_weighted: {}".format(listener, np.around(min(f1_weighted_list), 3), np.around(max(f1_weighted_list), 3), np.around(f1_weighted_list, 3)))
-
+    print("For listener: {}, min_F1_weighted: {}, max_F1_weighted: {}, avg. F1_weighted: {}".format(listener, np.around(min(f1_weighted_list), 3), np.around(max(f1_weighted_list), 3), np.around(avg_f1_weighted, 3)))
+    print("For listener: {}, avg. train samples per label: {} avg. test samples per label: {}".format(listener, round(avg_train_len), round(avg_test_len)))
