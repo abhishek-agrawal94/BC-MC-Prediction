@@ -187,8 +187,8 @@ for listener in listener_lst:
         train_file_list.remove(file)
         print('Start running fold: ' + str(fold))
 
-        train_dataset, train_labels = load_data_sliding(train_file_list, annotations_dir,num_feats=1406)
-        test_dataset, test_labels = load_data_sliding(test_file_list, annotations_dir, num_feats=60)
+        train_dataset, train_labels = load_data_sliding(train_file_list, annotations_dir)
+        test_dataset, test_labels = load_data_sliding(test_file_list, annotations_dir)
         train_lens.append(len(train_labels))
         test_lens.append(len(test_labels))
         train_dataloader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=shuffle, drop_last=True)
