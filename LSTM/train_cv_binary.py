@@ -261,7 +261,7 @@ for listener in listener_lst:
 
                 out_test = model(model_input.to(device))
 
-                threshold = torch.tensor([0.0])
+                threshold = torch.tensor([0.0]).to(device)
                 predictions = ((out_test > threshold).float() * 1).numpy()
 
                 # convert 2d to 1d array
