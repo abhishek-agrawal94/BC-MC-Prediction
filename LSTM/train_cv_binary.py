@@ -310,8 +310,8 @@ for listener in listener_lst:
 
     avg_acc = sum(acc_list) / len(acc_list)
     avg_f1_weighted = sum(f1_weighted_list) / len(f1_weighted_list)
-    avg_train_len = sum(train_lens) / (3 * len(train_lens))
-    avg_test_len = sum(test_lens) / (3 * len(test_lens))
+    avg_train_len = sum(train_lens) / (2 * len(train_lens))
+    avg_test_len = sum(test_lens) / (2 * len(test_lens))
     print("For listener: {}, min_acc: {}, max_acc: {}, avg. acc: {}".format(listener, np.around(min(acc_list), 3), np.around(max(acc_list), 3), np.around(avg_acc, 3)))
     print("For listener: {}, min_F1_weighted: {}, max_F1_weighted: {}, avg. F1_weighted: {}".format(listener, np.around(min(f1_weighted_list), 3), np.around(max(f1_weighted_list), 3), np.around(avg_f1_weighted, 3)))
     print("For listener: {}, avg. train samples per label: {} avg. test samples per label: {}".format(listener, round(avg_train_len), round(avg_test_len)))
