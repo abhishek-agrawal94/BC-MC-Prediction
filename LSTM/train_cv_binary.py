@@ -51,7 +51,7 @@ dropout_out = 0.2
 L2 = 1e-3
 
 lstm_settings_dict = {
-                      'hidden_dims': 50,
+                      'hidden_dims': 100,
                       'layers': 1,
                       'dropout': {'master_out': dropout_out, 'master_in': dropout_out}
                         }
