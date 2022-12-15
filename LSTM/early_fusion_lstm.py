@@ -46,6 +46,7 @@ class LSTMPredictor(nn.Module):
 
         self.out = nn.Linear(
             self.lstm_settings_dict['hidden_dims'], 3).type(dtype)
+        self.out_binary = nn.Linear(self.lstm_settings_dict['hidden_dims'], 1).type(dtype)
         self.init_hidden()
 
     def init_hidden(self):
@@ -85,6 +86,6 @@ class LSTMPredictor(nn.Module):
         lstm_out, self.hidden_lstm = self.lstm_master(x, self.hidden_lstm)
         lstm_out = self.dropout_dict['master_out'](lstm_out[:,-1,:])
 
-        out = self.out(lstm_out)
+        out = self.out_binary(lstm_out)
 
         return out
