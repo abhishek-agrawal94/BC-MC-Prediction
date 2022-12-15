@@ -35,7 +35,7 @@ class LSTMPredictor(nn.Module):
         # Initialize LSTMs
 
         self.lstm_master = nn.LSTM(self.num_feats,
-                                           self.lstm_settings_dict['hidden_dims'], batch_first=True).type(dtype)
+                                           self.lstm_settings_dict['hidden_dims'], batch_first=True, num_layers=self.num_layers).type(dtype)
 
         # init dropout layers
         self.dropout_dict = {}
