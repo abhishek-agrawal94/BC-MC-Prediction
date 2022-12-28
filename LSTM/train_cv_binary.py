@@ -31,8 +31,8 @@ else:
 
 
 # general model settings
-train_batch_size = 32
-test_batch_size = 8 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
+train_batch_size = 16
+test_batch_size = 2 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
@@ -41,19 +41,19 @@ num_layers = 1
 
 grad_clip_bool = False # turn gradient clipping on or off
 grad_clip = 1.0 # try values between 0 and 1
-init_std = 0.5
-num_epochs = 70
+init_std = 0.037
+num_epochs = 23
 slow_test = True
 patience = 10
 
-lr = 1e-5
+lr = 2.1e-5
 dropout_out = 0.2
-L2 = 1e-3
+L2 = 4.3e-5
 
 lstm_settings_dict = {
-                      'hidden_dims': 50,
-                      'layers': 2,
-                      'dropout': {'master_out': dropout_out, 'master_in': dropout_out}
+                      'hidden_dims': 90,
+                      'layers': 1,
+                      'dropout': {'master_out': 0.105, 'master_in': 0.537}
                         }
 
 loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into account unbalanced data
@@ -250,7 +250,7 @@ for listener in listener_lst:
                 y_test = torch.unsqueeze(y_test, dim=-1)
 
                 # set the model.change_batch_size directly
-                batch_length = 8
+                batch_length = 2
                 if batch_indx == 0:
                     model.change_batch_size_reset_states(batch_length)
                 else:
