@@ -247,7 +247,7 @@ for listener in listener_lst:
                 y_test = batch['y'].to(device)
 
                 # set the model.change_batch_size directly
-                batch_length = 5
+                batch_length = test_batch_size
                 if batch_indx == 0:
                     model.change_batch_size_reset_states(batch_length)
                 else:
