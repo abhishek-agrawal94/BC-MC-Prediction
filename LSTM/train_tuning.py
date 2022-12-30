@@ -189,9 +189,6 @@ def train_model(config):
             model = LSTMPredictor(lstm_settings_dict=config["lstm_settings_dict"], num_feats=num_features,
                                   batch_size=config["train_batch_size"], seq_length=sequence_length,
                                   prediction_length=prediction_length)
-            if use_cuda:
-                if torch.cuda.device_count() > 1:
-                    model = nn.DataParallel(model)
             model.weights_init(config["init_std"])
 
             optimizer = optim.Adam(model.parameters(), lr=config["lr"], weight_decay=config["L2"])
