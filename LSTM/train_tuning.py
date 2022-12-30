@@ -362,7 +362,8 @@ result = tune.run(
     config=config,
     num_samples=20,
     scheduler=scheduler,
-    progress_reporter=reporter
+    progress_reporter=reporter,
+    resources_per_trial={"gpu":2}
 )
 
 best_trial= result.get_best_trial("accuracy", "max", "last")
