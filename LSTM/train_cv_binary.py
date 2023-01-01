@@ -31,8 +31,8 @@ else:
 
 
 # general model settings
-train_batch_size = 16
-test_batch_size = 2 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
+train_batch_size = 64
+test_batch_size = 4 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
@@ -41,19 +41,19 @@ num_layers = 1
 
 grad_clip_bool = False # turn gradient clipping on or off
 grad_clip = 1.0 # try values between 0 and 1
-init_std = 0.037
-num_epochs = 23
+init_std = 0.427
+num_epochs = 61
 slow_test = True
 patience = 10
 
-lr = 2.1e-5
+lr = 4.1e-5
 dropout_out = 0.2
-L2 = 4.3e-5
+L2 = 0.7715
 
 lstm_settings_dict = {
-                      'hidden_dims': 90,
-                      'layers': 1,
-                      'dropout': {'master_out': 0.105, 'master_in': 0.537}
+                      'hidden_dims': 120,
+                      'layers': 2,
+                      'dropout': {'master_out': 0.0127, 'master_in': 0.6625}
                         }
 
 loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into account unbalanced data
@@ -61,7 +61,7 @@ loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into accoun
 # set file dir
 # input feature dir
 #annotations_dir = './data/extracted_annotations/bc_mc_labels/'
-annotations_dir = './data/extracted_annotations/voice_activity/'
+annotations_dir = './data/extracted_annotations/mc_labels/'
 acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
 visual_dir = './data/extracted_annotations/visual/manual_50ms'
 verbal_dir = './data/extracted_annotations/verbal/0.05'
