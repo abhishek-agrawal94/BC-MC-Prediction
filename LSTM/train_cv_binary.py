@@ -31,24 +31,24 @@ else:
 
 
 # general model settings
-train_batch_size = 64
-test_batch_size = 4 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
+train_batch_size = 128
+test_batch_size = 2 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
 shuffle = False
 slow_test = True
 
-init_std = 0.42677730862173957
-num_epochs = 61
+init_std = 0.27
+num_epochs = 51
 
-lr = 4.0715599118502184e-05
-L2 = 0.7715158331024211
+lr = 5.313e-05
+L2 = 1.64e-05
 
 lstm_settings_dict = {
-                      'hidden_dims': 120,
-                      'layers': 2,
-                      'dropout': {'master_out': 0.012736267156024939, 'master_in': 0.6625237840852582}
+                      'hidden_dims': 80,
+                      'layers': 3,
+                      'dropout': {'master_out': 0.22, 'master_in': 0.214}
                         }
 
 loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into account unbalanced data
