@@ -37,6 +37,7 @@ prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
 shuffle = False
+slow_test = True
 
 init_std = 0.42677730862173957
 num_epochs = 61
@@ -220,10 +221,6 @@ for listener in listener_lst:
                 loss = loss_func(model_output_logits, y.float())
                 loss_list.append(loss.cpu().data.numpy())
                 loss.backward()
-
-                if grad_clip_bool:
-                    clip_grad_norm(model.parameters(), grad_clip)
-
                 optimizer.step()
 
 
