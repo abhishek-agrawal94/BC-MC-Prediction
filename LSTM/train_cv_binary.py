@@ -37,23 +37,17 @@ prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
 shuffle = False
-num_layers = 1
 
-grad_clip_bool = False # turn gradient clipping on or off
-grad_clip = 1.0 # try values between 0 and 1
-init_std = 0.427
+init_std = 0.42677730862173957
 num_epochs = 61
-slow_test = True
-patience = 10
 
-lr = 4.1e-5
-dropout_out = 0.2
-L2 = 0.7715
+lr = 4.0715599118502184e-05
+L2 = 0.7715158331024211
 
 lstm_settings_dict = {
                       'hidden_dims': 120,
                       'layers': 2,
-                      'dropout': {'master_out': 0.0127, 'master_in': 0.6625}
+                      'dropout': {'master_out': 0.012736267156024939, 'master_in': 0.6625237840852582}
                         }
 
 loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into account unbalanced data
