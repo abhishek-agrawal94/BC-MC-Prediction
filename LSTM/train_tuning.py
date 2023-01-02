@@ -53,8 +53,8 @@ shuffle = False
 slow_test = True
 
 
-#loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into account unbalanced data
-loss_func = nn.CrossEntropyLoss()
+loss_func = nn.BCEWithLogitsLoss()  # add class weights later to take into account unbalanced data
+#loss_func = nn.CrossEntropyLoss()
 
 # set file dir
 # input feature dir
