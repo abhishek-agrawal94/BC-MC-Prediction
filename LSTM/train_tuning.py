@@ -53,12 +53,12 @@ shuffle = False
 slow_test = True
 
 
-loss_func = nn.BCEWithLogitsLoss()  # add class weights later to take into account unbalanced data
-#loss_func = nn.CrossEntropyLoss()
+#loss_func = nn.BCEWithLogitsLoss()  # add class weights later to take into account unbalanced data
+loss_func = nn.CrossEntropyLoss()
 
 # set file dir
 # input feature dir
-annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/mc_labels'
+annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/bc_mc_labels'
 #annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
 acous_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/signals/gemaps_features_processed_50ms/znormalized'
 visual_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/visual/manual_50ms'
@@ -66,7 +66,7 @@ verbal_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/
 
 # file-selection dict
 # note here it is used for hyperparameter tuning
-listener_lst = ['Child']
+listener_lst = ['Adult2']
 
 
 
@@ -133,6 +133,15 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             # save info: return training data and labels
             datapoint['x'] = data_temp_x
             datapoint['y'] = predict_np[window + sequence_length]
+
+            # Uncomment below if elif for BC vs MC
+            # if datapoint['y'] == 0:
+            #     window += 1
+            #     continue
+            # elif datapoint['y'] == 1:
+            #     datapoint['y'] = 0
+            # elif datapoint['y'] == 2:
+            #     datapoint['y'] = 1
 
             # Get only first 4 frames for each label
             if datapoint['y'] == prev_frame and count_frame > 4:
@@ -214,11 +223,11 @@ def train_model(config):
                     y = batch['y'].to(device)
 
                     # uncomment below for binary classification
-                    y = torch.unsqueeze(y, dim=-1)
-                    loss = loss_func(model_output_logits, y.float())
+                    # y = torch.unsqueeze(y, dim=-1)
+                    # loss = loss_func(model_output_logits, y.float())
 
                     # uncomment for multi class classification
-                    #loss = loss_func(model_output_logits, y)
+                    loss = loss_func(model_output_logits, y)
                     loss_list.append(loss.cpu().data.numpy())
                     loss.backward()
 
@@ -240,7 +249,7 @@ def train_model(config):
                     y_test = batch['y'].to(device)
 
                     # uncomment below for binary classification
-                    y_test = torch.unsqueeze(y_test, dim=-1)
+                    #y_test = torch.unsqueeze(y_test, dim=-1)
 
                     # set the model.change_batch_size directly
                     batch_length = config["test_batch_size"]
@@ -255,12 +264,12 @@ def train_model(config):
                     out_test = model(model_input.to(device))
 
                     # Uncomment below for binary classification
-                    threshold = torch.tensor([0.0]).to(device)
-                    predictions = ((out_test > threshold).float() * 1).data.cpu().numpy()
+                    # threshold = torch.tensor([0.0]).to(device)
+                    # predictions = ((out_test > threshold).float() * 1).data.cpu().numpy()
 
                     # uncomment for multi class classification
-                    # preds = torch.softmax(out_test, dim=1)
-                    # predictions = np.argmax(preds.data.cpu().numpy(), axis=1)
+                    preds = torch.softmax(out_test, dim=1)
+                    predictions = np.argmax(preds.data.cpu().numpy(), axis=1)
 
                     # convert 2d to 1d array
                     predicted = predictions.flatten()
@@ -269,10 +278,10 @@ def train_model(config):
                     true_val.append(true)
 
                     # Uncomment below line for binary classification
-                    loss = loss_func(out_test, y_test.float())
+                    #loss = loss_func(out_test, y_test.float())
 
                     # uncomment for multi class classification
-                    #loss = loss_func(out_test, y_test)
+                    loss = loss_func(out_test, y_test)
 
                     losses_test.append(loss.data.cpu().numpy())
                     batch_sizes.append(batch_length)
@@ -315,12 +324,12 @@ def train_model(config):
         avg_f1_weighted = sum(f1_weighted_list) / len(f1_weighted_list)
 
         # Uncomment for binary classification
-        avg_train_len = sum(train_lens) / (2 * len(train_lens))
-        avg_test_len = sum(test_lens) / (2 * len(test_lens))
+        # avg_train_len = sum(train_lens) / (2 * len(train_lens))
+        # avg_test_len = sum(test_lens) / (2 * len(test_lens))
 
         # uncomment for multi class classification
-        # avg_train_len = sum(train_lens) / (3 * len(train_lens))
-        # avg_test_len = sum(test_lens) / (3 * len(test_lens))
+        avg_train_len = sum(train_lens) / (3 * len(train_lens))
+        avg_test_len = sum(test_lens) / (3 * len(test_lens))
         print("For listener: {}, min_acc: {}, max_acc: {}, avg. acc: {}".format(listener, np.around(min(acc_list), 3),
                                                                                 np.around(max(acc_list), 3),
                                                                                 np.around(avg_acc, 3)))
