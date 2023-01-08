@@ -31,8 +31,8 @@ else:
 
 
 # general model settings
-train_batch_size = 64
-test_batch_size = 4 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
+train_batch_size = 128
+test_batch_size = 16 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
@@ -41,19 +41,19 @@ num_layers = 1
 
 grad_clip_bool = False # turn gradient clipping on or off
 grad_clip = 1.0 # try values between 0 and 1
-init_std = 0.84
-num_epochs = 59
+init_std = 0.196
+num_epochs = 33
 slow_test = True
 patience = 10
 
-lr = 0.0018
+lr = 0.00138
 dropout_out = 0.2
-L2 = 0.00098
+L2 = 0.0293
 
 lstm_settings_dict = {
-                      'hidden_dims': 100,
-                      'layers': 3,
-                      'dropout': {'master_out': 0.81, 'master_in': 0.11}
+                      'hidden_dims': 80,
+                      'layers': 1,
+                      'dropout': {'master_out': 0.65, 'master_in': 0.27}
                         }
 
 loss_func = nn.CrossEntropyLoss() # add class weights later to take into account unbalanced data
