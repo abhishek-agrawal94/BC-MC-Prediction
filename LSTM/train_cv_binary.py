@@ -96,7 +96,7 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
         # x_temp = pd.concat([visual.head(min_len_fea), verbal.head(min_len_fea), vocal.head(min_len_fea)], axis=1)
 
         # For one modality
-        min_len_fea = len(vocal['frameTimes'].tolist())
+        min_len_fea = len(vocal['frame_time'].tolist())
         x_temp = vocal
 
         temp_y = pd.read_csv(annotations_dir + '/' + filename + '.csv', delimiter=',')
