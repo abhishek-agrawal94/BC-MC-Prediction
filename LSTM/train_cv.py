@@ -61,14 +61,14 @@ loss_func = nn.CrossEntropyLoss() # add class weights later to take into account
 # set file dir
 # input feature dir
 annotations_dir = './data/extracted_annotations/bc_mc_labels/'
-acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
+# acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
 visual_dir = './data/extracted_annotations/visual/manual_50ms'
-verbal_dir = './data/extracted_annotations/verbal/0.05'
+# verbal_dir = './data/extracted_annotations/verbal/0.05'
 
 # file-selection dict
 # note here it is used for hyperparameter tuning
 listener_lst = ['Child','Parent','Adult1','Adult2']
-#listener = 'Adult2'
+# listener_lst = ['Parent']
 #train_list_path = './data/splits/training_' + listener + '.txt'
 #validation_list_path = './data/splits/validation_' + listener + '.txt'
 
@@ -89,13 +89,17 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
 
     for filename in file_list:
         # load features of different modalities
-        vocal = pd.read_csv(acous_dir + '/' + filename + '.csv', delimiter=',')
+        # vocal = pd.read_csv(acous_dir + '/' + filename + '.csv', delimiter=',')
         visual = pd.read_csv(visual_dir + '/' + filename + '.csv', delimiter=',')
-        verbal = pd.read_csv(verbal_dir + '/' + filename + '.csv', delimiter=',')
-        min_len_fea = min([len(vocal['frame_time'].tolist()), len(visual['frameTimes'].tolist())
-                              , len(verbal['frameTimes'].tolist())])
+        # verbal = pd.read_csv(verbal_dir + '/' + filename + '.csv', delimiter=',')
+        # min_len_fea = min([len(vocal['frame_time'].tolist()), len(visual['frameTimes'].tolist())
+        #                       , len(verbal['frameTimes'].tolist())])
 
-        x_temp = pd.concat([visual.head(min_len_fea), verbal.head(min_len_fea), vocal.head(min_len_fea)], axis=1)
+        # x_temp = pd.concat([visual.head(min_len_fea), verbal.head(min_len_fea), vocal.head(min_len_fea)], axis=1)
+
+        # For one modality
+        min_len_fea = len(visual['frameTimes'].tolist())
+        x_temp = visual
 
         temp_y = pd.read_csv(annotations_dir + '/' + filename + '.csv', delimiter=',')
         y_temp = temp_y.head(min_len_fea)
@@ -283,6 +287,7 @@ for listener in listener_lst:
             f1_weighted = f1_score(true_vals, predicted_vals, average='weighted')
             if acc_score > best_acc:
                 best_acc = acc_score
+                # torch.save(model.state_dict(), "./models/parent_model.pt")
             if f1_weighted > best_f1_weighted:
                 best_f1_weighted = f1_weighted
 

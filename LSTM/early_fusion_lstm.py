@@ -86,6 +86,6 @@ class LSTMPredictor(nn.Module):
         lstm_out, self.hidden_lstm = self.lstm_master(x, self.hidden_lstm)
         lstm_out = self.dropout_dict['master_out'](lstm_out[:,-1,:])
 
-        out = self.out_binary(lstm_out)
+        out = self.out(lstm_out)
 
         return out
