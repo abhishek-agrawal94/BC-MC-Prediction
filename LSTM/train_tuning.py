@@ -58,7 +58,7 @@ loss_func = nn.BCEWithLogitsLoss()  # add class weights later to take into accou
 
 # set file dir
 # input feature dir
-annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/bc_mc_labels'
+annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/mc_labels'
 #annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
 acous_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/signals/gemaps_features_processed_50ms/znormalized'
 visual_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/visual/manual_50ms'
@@ -157,7 +157,7 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             window += 1
 
     # Uncomment for BC vs nothing
-    dataset_dict.pop(2)
+    # dataset_dict.pop(2)
     # get equal number of samples for each label
     if num_feats != -1:
         min_samples = num_feats
