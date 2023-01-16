@@ -31,24 +31,24 @@ else:
 
 
 # general model settings
-train_batch_size = 16
-test_batch_size = 2 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
+train_batch_size = 64
+test_batch_size = 4 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
 shuffle = False
 slow_test = True
 
-init_std = 0.037
-num_epochs = 23
+init_std = 0.5536
+num_epochs = 54
 
-lr = 2.1e-05
-L2 = 4.32e-05
+lr = 0.0002
+L2 = 3.94e-05
 
 lstm_settings_dict = {
-                      'hidden_dims': 90,
-                      'layers': 1,
-                      'dropout': {'master_out': 0.104, 'master_in': 0.537}
+                      'hidden_dims': 160,
+                      'layers': 5,
+                      'dropout': {'master_out': 0.22, 'master_in': 0.54}
                         }
 
 loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into account unbalanced data
@@ -57,8 +57,8 @@ loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into accoun
 # input feature dir
 annotations_dir = './data/extracted_annotations/bc_mc_labels/'
 #annotations_dir = './data/extracted_annotations/mc_labels/'
-acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
-# visual_dir = './data/extracted_annotations/visual/manual_50ms'
+# acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
+visual_dir = './data/extracted_annotations/visual/manual_50ms'
 # verbal_dir = './data/extracted_annotations/verbal/0.05'
 
 # file-selection dict
@@ -85,8 +85,8 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
 
     for filename in file_list:
         # load features of different modalities
-        vocal = pd.read_csv(acous_dir + '/' + filename + '.csv', delimiter=',')
-        # visual = pd.read_csv(visual_dir + '/' + filename + '.csv', delimiter=',')
+        # vocal = pd.read_csv(acous_dir + '/' + filename + '.csv', delimiter=',')
+        visual = pd.read_csv(visual_dir + '/' + filename + '.csv', delimiter=',')
         # verbal = pd.read_csv(verbal_dir + '/' + filename + '.csv', delimiter=',')
 
         # For all modalities
@@ -96,8 +96,8 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
         # x_temp = pd.concat([visual.head(min_len_fea), verbal.head(min_len_fea), vocal.head(min_len_fea)], axis=1)
 
         # For one modality
-        min_len_fea = len(vocal['frame_time'].tolist())
-        x_temp = vocal
+        min_len_fea = len(visual['frameTimes'].tolist())
+        x_temp = visual
 
         temp_y = pd.read_csv(annotations_dir + '/' + filename + '.csv', delimiter=',')
         y_temp = temp_y.head(min_len_fea)
@@ -146,13 +146,13 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             datapoint['y'] = predict_np[window + sequence_length]
 
             # Uncomment below if elif for BC vs MC
-            # if datapoint['y'] == 0:
-            #     window += 1
-            #     continue
-            # elif datapoint['y'] == 1:
-            #     datapoint['y'] = 0
-            # elif datapoint['y'] == 2:
-            #     datapoint['y'] = 1
+            if datapoint['y'] == 0:
+                window += 1
+                continue
+            elif datapoint['y'] == 1:
+                datapoint['y'] = 0
+            elif datapoint['y'] == 2:
+                datapoint['y'] = 1
 
             # Get only first 4 frames for each label
             if datapoint['y'] == prev_frame and count_frame > 4:
@@ -168,7 +168,7 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             window += 1
 
     # Uncomment for BC vs nothing
-    dataset_dict.pop(2)
+    # dataset_dict.pop(2)
     # get equal number of samples for each label
     if num_feats != -1:
         min_samples = num_feats
