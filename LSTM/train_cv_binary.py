@@ -57,8 +57,8 @@ loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into accoun
 # input feature dir
 # annotations_dir = './data/extracted_annotations/bc_mc_labels/'
 annotations_dir = './data/extracted_annotations/mc_labels/'
-acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
-# visual_dir = './data/extracted_annotations/visual/manual_50ms'
+# acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
+visual_dir = './data/extracted_annotations/visual/manual_50ms'
 # verbal_dir = './data/extracted_annotations/verbal/0.05'
 
 # file-selection dict
@@ -85,8 +85,8 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
 
     for filename in file_list:
         # load features of different modalities
-        vocal = pd.read_csv(acous_dir + '/' + filename + '.csv', delimiter=',')
-        # visual = pd.read_csv(visual_dir + '/' + filename + '.csv', delimiter=',')
+        # vocal = pd.read_csv(acous_dir + '/' + filename + '.csv', delimiter=',')
+        visual = pd.read_csv(visual_dir + '/' + filename + '.csv', delimiter=',')
         # verbal = pd.read_csv(verbal_dir + '/' + filename + '.csv', delimiter=',')
 
         # For all modalities
@@ -96,8 +96,8 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
         # x_temp = pd.concat([visual.head(min_len_fea), verbal.head(min_len_fea), vocal.head(min_len_fea)], axis=1)
 
         # For one modality
-        min_len_fea = len(vocal['frame_time'].tolist())
-        x_temp = vocal
+        min_len_fea = len(visual['frameTimes'].tolist())
+        x_temp = visual
 
         temp_y = pd.read_csv(annotations_dir + '/' + filename + '.csv', delimiter=',')
         y_temp = temp_y.head(min_len_fea)
