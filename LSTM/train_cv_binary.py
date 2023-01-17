@@ -31,32 +31,32 @@ else:
 
 
 # general model settings
-train_batch_size = 64
-test_batch_size = 8 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
+train_batch_size = 128
+test_batch_size = 16 # this should stay fixed at 1 when using slow test because the batches are already set in the data loader
 prediction_length = 1  # (predict next frame)
 sequence_length = 40  # 2s context window
 
 shuffle = False
 slow_test = True
 
-init_std = 0.426
-num_epochs = 54
+init_std = 0.248
+num_epochs = 45
 
-lr = 5.14e-05
-L2 = 2.96e-05
+lr = 1.04e-05
+L2 = 1.63e-05
 
 lstm_settings_dict = {
-                      'hidden_dims': 110,
-                      'layers': 1,
-                      'dropout': {'master_out': 0.74, 'master_in': 0.74}
+                      'hidden_dims': 100,
+                      'layers': 2,
+                      'dropout': {'master_out': 0.36, 'master_in': 0.26}
                         }
 
 loss_func = nn.BCEWithLogitsLoss() # add class weights later to take into account unbalanced data
 
 # set file dir
 # input feature dir
-# annotations_dir = './data/extracted_annotations/bc_mc_labels/'
-annotations_dir = './data/extracted_annotations/mc_labels/'
+annotations_dir = './data/extracted_annotations/bc_mc_labels/'
+# annotations_dir = './data/extracted_annotations/mc_labels/'
 acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
 # visual_dir = './data/extracted_annotations/visual/manual_50ms'
 # verbal_dir = './data/extracted_annotations/verbal/0.05'
@@ -168,7 +168,7 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             window += 1
 
     # Uncomment for BC vs nothing
-    # dataset_dict.pop(2)
+    dataset_dict.pop(2)
     # get equal number of samples for each label
     if num_feats != -1:
         min_samples = num_feats
