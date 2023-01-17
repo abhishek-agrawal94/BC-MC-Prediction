@@ -58,7 +58,7 @@ loss_func = nn.BCEWithLogitsLoss()  # add class weights later to take into accou
 
 # set file dir
 # input feature dir
-annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/mc_labels'
+annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/bc_mc_labels'
 #annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
 acous_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/signals/gemaps_features_processed_50ms/znormalized'
 visual_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/visual/manual_50ms'
@@ -135,13 +135,13 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             datapoint['y'] = predict_np[window + sequence_length]
 
             # Uncomment below if elif for BC vs MC
-            # if datapoint['y'] == 0:
-            #     window += 1
-            #     continue
-            # elif datapoint['y'] == 1:
-            #     datapoint['y'] = 0
-            # elif datapoint['y'] == 2:
-            #     datapoint['y'] = 1
+            if datapoint['y'] == 0:
+                window += 1
+                continue
+            elif datapoint['y'] == 1:
+                datapoint['y'] = 0
+            elif datapoint['y'] == 2:
+                datapoint['y'] = 1
 
             # Get only first 4 frames for each label
             if datapoint['y'] == prev_frame and count_frame > 4:
