@@ -61,12 +61,12 @@ loss_func = nn.BCEWithLogitsLoss()  # add class weights later to take into accou
 annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/bc_mc_labels'
 #annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
 acous_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/signals/gemaps_features_processed_50ms/znormalized'
-visual_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/visual/manual_50ms'
-verbal_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/verbal/0.05'
+# visual_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/visual/manual_50ms'
+# verbal_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/verbal/0.05'
 
 # file-selection dict
 # note here it is used for hyperparameter tuning
-listener_lst = ['Adult2']
+listener_lst = ['Child']
 
 
 
@@ -81,12 +81,18 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
     for filename in file_list:
         # load features of different modalities
         vocal = pd.read_csv(acous_dir + '/' + filename + '.csv', delimiter=',')
-        visual = pd.read_csv(visual_dir + '/' + filename + '.csv', delimiter=',')
-        verbal = pd.read_csv(verbal_dir + '/' + filename + '.csv', delimiter=',')
-        min_len_fea = min([len(vocal['frame_time'].tolist()), len(visual['frameTimes'].tolist())
-                              , len(verbal['frameTimes'].tolist())])
+        # visual = pd.read_csv(visual_dir + '/' + filename + '.csv', delimiter=',')
+        # verbal = pd.read_csv(verbal_dir + '/' + filename + '.csv', delimiter=',')
 
-        x_temp = pd.concat([visual.head(min_len_fea), verbal.head(min_len_fea), vocal.head(min_len_fea)], axis=1)
+        # For all modalities
+        # min_len_fea = min([len(vocal['frame_time'].tolist()), len(visual['frameTimes'].tolist())
+        #                       , len(verbal['frameTimes'].tolist())])
+        #
+        # x_temp = pd.concat([visual.head(min_len_fea), verbal.head(min_len_fea), vocal.head(min_len_fea)], axis=1)
+
+        # For one modality
+        min_len_fea = len(vocal['frame_time'].tolist())
+        x_temp = vocal
 
         temp_y = pd.read_csv(annotations_dir + '/' + filename + '.csv', delimiter=',')
         y_temp = temp_y.head(min_len_fea)
@@ -135,13 +141,13 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             datapoint['y'] = predict_np[window + sequence_length]
 
             # Uncomment below if elif for BC vs MC
-            if datapoint['y'] == 0:
-                window += 1
-                continue
-            elif datapoint['y'] == 1:
-                datapoint['y'] = 0
-            elif datapoint['y'] == 2:
-                datapoint['y'] = 1
+            # if datapoint['y'] == 0:
+            #     window += 1
+            #     continue
+            # elif datapoint['y'] == 1:
+            #     datapoint['y'] = 0
+            # elif datapoint['y'] == 2:
+            #     datapoint['y'] = 1
 
             # Get only first 4 frames for each label
             if datapoint['y'] == prev_frame and count_frame > 4:
@@ -157,7 +163,7 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             window += 1
 
     # Uncomment for BC vs nothing
-    # dataset_dict.pop(2)
+    dataset_dict.pop(2)
     # get equal number of samples for each label
     if num_feats != -1:
         min_samples = num_feats
@@ -371,7 +377,7 @@ result = tune.run(
     num_samples=20,
     scheduler=scheduler,
     progress_reporter=reporter,
-    resources_per_trial={"gpu":2}
+    resources_per_trial={"gpu":1}
 )
 
 best_trial= result.get_best_trial("accuracy", "max", "last")
