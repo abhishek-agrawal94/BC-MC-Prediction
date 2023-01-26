@@ -98,16 +98,6 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             datapoint['x'] = data_temp_x
             datapoint['y'] = predict_np[window + sequence_length]
 
-            # Uncomment below if elif for BC vs MC
-            if args.experiment == 3:
-                if datapoint['y'] == 0:
-                    window += 1
-                    continue
-                elif datapoint['y'] == 1:
-                    datapoint['y'] = 0
-                elif datapoint['y'] == 2:
-                    datapoint['y'] = 1
-
 
             # Get only first 4 frames for each label
             if datapoint['y'] == prev_frame and count_frame > 4:
@@ -125,6 +115,16 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
     # Uncomment for BC vs nothing
     if args.experiment == 1:
         dataset_dict.pop(2)
+
+    # Uncomment below if elif for BC vs MC
+    if args.experiment == 3:
+        dataset_dict.pop(0)
+        for key, values in dataset_dict.items():
+            for datapoint in values:
+                if datapoint['y'] == 1:
+                    datapoint['y'] = 0
+                elif datapoint['y'] == 2:
+                    datapoint['y'] = 1
 
     # get equal number of samples for each label
     if num_feats != -1:
