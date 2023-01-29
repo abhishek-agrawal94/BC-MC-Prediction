@@ -116,6 +116,14 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
     if args.experiment == 1:
         dataset_dict.pop(2)
 
+    # Uncomment below if elif for MC vs nothing
+    if args.experiment == 2:
+        dataset_dict.pop(1)
+        for key, values in dataset_dict.items():
+            for datapoint in values:
+                if datapoint['y'] == 2:
+                    datapoint['y'] = 1
+
     # Uncomment below if elif for BC vs MC
     if args.experiment == 3:
         dataset_dict.pop(0)
@@ -369,14 +377,16 @@ if __name__ == "__main__":
     loss_func = nn.BCEWithLogitsLoss()  # add class weights later to take into account unbalanced data
     # loss_func = nn.CrossEntropyLoss()
 
+    annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/bc_mc_labels'
+
     # set file dir
     # input feature dir
-    if args.experiment == 2:
-        annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/mc_labels'
-        # annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
-    else:
-        annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/bc_mc_labels'
-        # annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
+    # if args.experiment == 2:
+    #     annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/mc_labels'
+    #     # annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
+    # else:
+    #     annotations_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/bc_mc_labels'
+    #     # annotations_dir = '/Users/abhishekagrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/voice_activity'
 
     acous_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/signals/gemaps_features_processed_50ms/znormalized'
     visual_dir = '/baie/nfs-cluster-1/data1/raid1/homedirs/abishek.agrawal/projects/BC-MC-Prediction/LSTM/data/extracted_annotations/visual/manual_50ms'
