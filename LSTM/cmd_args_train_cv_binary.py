@@ -123,6 +123,14 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
                 elif datapoint['y'] == 2:
                     datapoint['y'] = 1
 
+    # Uncomment below if elif for MC vs nothing
+    if args.experiment == 2:
+        dataset_dict.pop(1)
+        for key, values in dataset_dict.items():
+            for datapoint in values:
+                if datapoint['y'] == 2:
+                    datapoint['y'] = 1
+
     # get equal number of samples for each label
     if num_feats != -1:
         min_samples = num_feats
@@ -196,10 +204,12 @@ if __name__ == "__main__":
     # set file dir
     # input feature dir
 
-    if args.experiment == 2:
-        annotations_dir = './data/extracted_annotations/mc_labels/'
-    else:
-        annotations_dir = './data/extracted_annotations/bc_mc_labels/'
+    annotations_dir = './data/extracted_annotations/bc_mc_labels/'
+
+    # if args.experiment == 2:
+    #     annotations_dir = './data/extracted_annotations/mc_labels/'
+    # else:
+    #     annotations_dir = './data/extracted_annotations/bc_mc_labels/'
 
     acous_dir = './data/signals/gemaps_features_processed_50ms/znormalized'
     visual_dir = './data/extracted_annotations/visual/manual_50ms'
