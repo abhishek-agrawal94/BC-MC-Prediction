@@ -44,7 +44,7 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
             min_len_fea = len(vocal['frame_time'].tolist())
             x_temp = vocal
             if args.ablation:
-                x_temp = visual[['frame_time', 'F0semitoneFrom27.5Hz']]
+                x_temp = vocal[['frame_time', 'F0semitoneFrom27.5Hz']]
         elif args.modality == "visual":
             min_len_fea = len(visual['frameTimes'].tolist())
             x_temp = visual
