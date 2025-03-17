@@ -43,9 +43,14 @@ def load_data_sliding(file_list, annotations_dir, num_feats=-1):
         elif args.modality == "vocal":
             min_len_fea = len(vocal['frame_time'].tolist())
             x_temp = vocal
+            if args.ablation:
+                x_temp = visual[['frame_time', 'F0semitoneFrom27.5Hz']]
         elif args.modality == "visual":
             min_len_fea = len(visual['frameTimes'].tolist())
             x_temp = visual
+            if args.ablation:
+                x_temp = visual[['frameTimes', 'LS']]
+
         else:
             min_len_fea = len(verbal['frameTimes'].tolist())
             x_temp = verbal
@@ -163,6 +168,7 @@ if __name__ == "__main__":
     parser.add_argument("-q", "--dropout_in", default=0.5, type=float, help="dropout for master_in")
     parser.add_argument("-c", "--epochs", default=20, type=int, help="num. of epochs")
     parser.add_argument("-n", "--hidden_dim", default=50, type=int, help="num. of hidden dims for LSTM")
+    parser.add_argument("-t", "--ablation", default=False, type=bool, help="use individual feats")
 
 
     args = parser.parse_args()
